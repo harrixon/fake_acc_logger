@@ -1,18 +1,21 @@
 const cryptoRandomString = require('crypto-random-string');
+const bcrypt  = require("bcryptjs");
 
 const demoUID = cryptoRandomString(10);
 
-exports.seed = function(knex, Promise) {
+exports.seed = async function(knex, Promise) {
   // Deletes ALL existing entries
+  let hash = await bcrypt.hash("123456", 10);
   return knex('systemUsers').del()
     .then(() => {
       // Inserts seed entries
+      console.log(hash)
       return knex('systemUsers').insert([
         {
           id: 1, 
           UID: `${demoUID}`,
           username: "demo",
-          password: "123456"
+          password: hash
         },        
       ]);
     })

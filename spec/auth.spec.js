@@ -6,7 +6,7 @@ describe("authentication", ()=>{
         it ("should respond with a jwt-token", (done) => {
             request
                 .post("/api/auth/login")
-                .send({username: "username", password: "password"})
+                .send({username: "demo", password: "123456"})
                 .expect("Content-type", /json/)
                 .expect(200)
                 .end((err, res) => {
@@ -14,7 +14,7 @@ describe("authentication", ()=>{
                 });
         });
 
-        it ("should respond with a 401 given a invalid username", (done) => {
+        it ("should respond with a 401 given a invalid input", (done) => {
             request
                 .post("/api/auth/login")
                 .send({username: "wrongname", password: "password"})
@@ -25,7 +25,7 @@ describe("authentication", ()=>{
                 });
         });
 
-        it ("should respond with a 401 given a invalid password", (done) => {
+        it ("should respond with a 401 given a invalid input", (done) => {
             request
                 .post("/api/auth/login")
                 .send({username: "username", password: "passssssword"})

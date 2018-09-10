@@ -1,6 +1,5 @@
 // import config
 const dotenv = require("dotenv");
-const config = require("./config");
 dotenv.config();
 
 // import express
@@ -10,7 +9,7 @@ const app = express();
 // import knex
 const Knex = require("knex");
 const KnexConfig = require("./knexfile");
-const knex = Knex(KnexConfig[config.env]);
+const knex = Knex(KnexConfig[process.env.currentEnv]);
 
 // import all services
 const AuthServices = require("./service/authServices");
@@ -18,12 +17,14 @@ const authServices = new AuthServices(knex);
 const AccountServices = require("./service/accountServices");
 const accountServices = new AccountServices(knex);
 
+// assigning services
 const jwtStrategy = require("./util/auth/jwtStrategy");
 const jwtAuth = jwtStrategy(authServices);
 
 const ApiRouter = require("./router/ApiRouter");
 const apiRouter = new ApiRouter(jwtAuth, express, authServices, accountServices, knex);
 
+// import middleware for Express
 const bodyParser = require("body-parser");
 const cors = require("cors");
 app.use(bodyParser.urlencoded({extended: true}));

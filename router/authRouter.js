@@ -1,13 +1,3 @@
-const users = [
-    {
-        id: 1,
-        username: "username",
-        password: "password"
-    }
-]
-
-const config = require("./../config");
-const jwtSimple = require ("jwt-simple");
 
 class AuthRouter {
     constructor(express, authServices, knex, jwtAuth){
@@ -26,25 +16,18 @@ class AuthRouter {
     }
 
     async login(req, res){
-        if (req.body.username && req.body.password) {
-            var username = req.body.username;
-            var password = req.body.password;
-            var user = users.find((u)=> {
-                return u.username === username && u.password === password;
+        return this.authServices
+            .login(req)
+            .then(result => {
+                if (result.success) {
+                    res.status(200).json({token: result.token});
+                } else {
+                    res.status(401).json({err: "invalid input"});
+                }
+            })
+            .catch(err => {
+                throw new Error (err);
             });
-            // use authService to check DB for user data
-            if (user) {
-                var payload = {
-                    id: user.id
-                };
-                var token = await jwtSimple.encode(payload, config.jwtSecret);
-                res.status(200).json({ token });
-            } else {
-                res.status(401).json({err: "invalid input"});
-            }
-        } else {
-            res.status(401).json({err: "invalid input"});
-        }
     }
 }
 
