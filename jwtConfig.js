@@ -1,5 +1,8 @@
+const dotenv = require("dotenv");
+dotenv.config();
+
 module.exports = {
-    jwtSecret: "jsakdlfljadsmview12",
+    jwtSecret: process.env.jwtSecret,
     jwtSession: {
         session: false
     }
