@@ -18,6 +18,7 @@ exports.up = function (knex, Promise) {
                     doppelganger.enum("loginType", ["local", "social"]).notNullable();
                     doppelganger.string("username");
                     doppelganger.string("email");
+                    doppelganger.string("emailServiceProvider");
                     doppelganger.string("password");
                     doppelganger.string("remark").defaultTo("");
                     doppelganger.string("URL").defaultTo("");

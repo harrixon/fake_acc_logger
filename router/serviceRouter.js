@@ -11,7 +11,7 @@ class ServiceRouter {
         router.get("/accList", this.getListOfAllAccounts.bind(this));
         // give provider's name, get acc info
         router.get("/byServiceProvider", this.getByServiceProvider.bind(this));
-        router.get("/byEmailProvider", this.getByEmailProvider.bind(this));
+        router.get("/byEmailServiceProvider", this.getByEmailServiceProvider.bind(this));
         // add/update/delete acc info
         router.post("/newAcc", this.addAccount.bind(this));
         router.post("/updateAcc", this.updateAccount.bind(this));
@@ -42,9 +42,9 @@ class ServiceRouter {
             });
     }
 
-    async getByEmailProvider(req, res) {
+    async getByEmailServiceProvider(req, res) {
         return this.accountServices
-            .getByEmailProvider(req.param.emailProvider)
+            .getByEmailServiceProvider(req.query)
             .then(resultPkg => {
                 res.status(201).json({resultPkg});
             })

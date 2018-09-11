@@ -9,14 +9,15 @@ describe("router", ()=>{
     };
 
     this.serviceProvider = {serviceProvider:"something co."};
-    this.emailProvider = {emailProvider:"Google"};
+    this.emailServiceProvider = {emailServiceProvider:"Google"};
 
     this.packageAdd = {                
         type: "ADD",
         serviceProvider: "origin",
-        loginType: "Google",
+        loginType: "social",
         username: "testing",
         email: "testing@gmail.com",
+        emailServiceProvider: "Google",
         password: "testing",
         remark: "none",
         URL: "none",
@@ -24,7 +25,7 @@ describe("router", ()=>{
     this.packageUpdate = {                
         type: "UPDATE",
         serviceProvider: "origin",
-        loginType: "Google",
+        loginType: "social",
         username: "testing",
         email: "testing@gmail.com",
         update: {
@@ -39,7 +40,7 @@ describe("router", ()=>{
     this.packageDelete = {                
         type: "DELETE",
         serviceProvider: "origin",
-        loginType: "Google",
+        loginType: "social",
         username: "testing",
         email: "testing@gmail.com",
     };
@@ -51,6 +52,7 @@ describe("router", ()=>{
         "loginType",
         "username",
         "email",
+        "emailServiceProvider",
         "password",
         "remark",
         "URL"
@@ -73,6 +75,13 @@ describe("router", ()=>{
     this.moreThanOneServiceProvider = (pkg, sp) => {
         let fail = pkg.find(p => {
             return (p.serviceProvider != sp.serviceProvider);
+        });
+        return fail;
+    }
+
+    this.wrongEmailServiceProvider = (pkg, e) => {
+        let fail = pkg.find(p => {
+            return (p.emailServiceProvider != e.emailServiceProvider);
         });
         return fail;
     }
@@ -138,8 +147,8 @@ describe("router", ()=>{
                             throw new Error ("result package structure is wrong!");
                         } else {
                             if (this.moreThanOneServiceProvider(res.body.resultPkg, this.serviceProvider)) {
-                                console.log("spec: ", "accs more than one service provider is fetched");
-                                throw new Error ("accs more than one service provider is fetched");
+                                console.log("spec: ", "accs of more than one service provider is fetched");
+                                throw new Error ("accs of more than one service provider is fetched");
                             } else {
                                 done();
                             }
@@ -149,17 +158,32 @@ describe("router", ()=>{
         });
     });
 
-    xdescribe("GET /byEmailProvider", ()=>{
+    describe("GET /byEmailServiceProvider", ()=>{
         it("respond with json", (done)=>{
             request
-                .get("/api/service/byEmailProvider")
-                .query(this.emailProvider)
+                .get("/api/service/byEmailServiceProvider")
+                .query(this.emailServiceProvider)
                 .set('Authorization', 'bearer ' + this.token)
                 .set("Accept", "application/json")
                 .expect("Content-type", /json/)
                 .expect(201)
                 .end((err, res) => {
-                    err ? console.log(`ERR: ${err}`) : done();
+                    if (err) {
+                        console.log("spec: ", err);
+                        throw new Error (err);
+                    } else {
+                        if (this.wrongPackageStructure(res.body.resultPkg)) {
+                            console.log("spec: ", "result package structure is wrong!");
+                            throw new Error ("result package structure is wrong!");
+                        } else {
+                            if (this.wrongEmailServiceProvider(res.body.resultPkg, this.emailServiceProvider)) {
+                                console.log("spec: ", "accs of more than one / wrong email service provider is fetched");
+                                throw new Error ("accs of more than one / wrong email service provider is fetched");
+                            } else {
+                                done();
+                            }
+                        }
+                    }
                 });
         });
     });
