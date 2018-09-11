@@ -26,7 +26,7 @@ class AuthRouter {
                 }
             })
             .catch(err => {
-                throw new Error (err);
+                res.status(500).json({err});
             });
     }
 }

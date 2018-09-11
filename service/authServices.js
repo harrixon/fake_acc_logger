@@ -1,4 +1,3 @@
-const Promise = require("bluebird");
 
 const bcrypt = require("bcryptjs");
 const config = require("./../jwtConfig");
@@ -7,6 +6,17 @@ const jwtSimple = require("jwt-simple");
 class AuthServices {
     constructor(knex) {
         this.knex = knex;
+    }
+
+    async getAllUsersUID () {
+        try{
+            return this.knex("systemUsers")
+                .select("UID");
+        }
+        catch (err) {
+            console.log(err);
+            throw new Error (err);
+        }
     }
 
     async login(req) {
@@ -39,6 +49,7 @@ class AuthServices {
         }
         catch (err) {
             console.log("service Error: ", err);
+            throw new Error (err);
         }
     }
 }

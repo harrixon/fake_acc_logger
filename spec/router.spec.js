@@ -6,9 +6,8 @@ describe("router", ()=>{
     // it ("should allow access to all api only with auth");
 
     this.packageLogin = {
-        id: 1,
-        username: "username",
-        password: "password"
+        username: "demo",
+        password: "123456"
     };
 
     this.serviceProvider = {serviceProvider:"origin"};
@@ -51,7 +50,7 @@ describe("router", ()=>{
         // get login token
         request
             .post("/api/auth/login")
-            .send({username: "username", password: "password"})
+            .send(this.packageLogin)
             .expect("Content-type", /json/)
             .expect(200)
             .end((err, res) => {

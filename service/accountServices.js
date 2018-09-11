@@ -5,8 +5,8 @@ const sample = {
     loginType:"Google",
     email:"sample@gmail.com",
     username:"sample",
-    remark:"none",
-    URL:"none"
+    remark:"",
+    URL:""
 }
 
 class AccountServices {

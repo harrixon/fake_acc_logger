@@ -1,32 +1,39 @@
 const passport = require('passport');
 const passportJWT = require('passport-jwt');
 const config = require('../../jwtConfig');
-// const users = require('./users');
 const ExtractJwt = passportJWT.ExtractJwt;
 
-const users = {
-    1: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJ1c2VybmFtZSI6InVzZXJuYW1lIiwicGFzc3dvcmQiOiJwYXNzd29yZCJ9.WB7DoqlLqkv3rGsEjK4v_-CJzmnR450Gq-Tl4yOn0G0"
-}
 
-module.exports = ()=>{
-    const strategy = new passportJWT.Strategy({
-        secretOrKey: config.jwtSecret,
-        jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken()
-    },(payload,done)=>{
-        const user = users[payload.id];
-        if (user) {
-            return done(null, {id: user.id});
-        } else {
-            return done(new Error("User not found"), null);
+
+module.exports = (authServices) => {
+    const strategy = new passportJWT.Strategy(
+        {
+            secretOrKey: config.jwtSecret,
+            jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken()
+        },
+        async (payload, done) => {
+
+            let userList = await authServices.getAllUsersUID();
+
+            let user = userList.find((u) => {
+                return u.UID = payload.UID;
+            });
+
+            if (user) {
+                return done(null, { id: user.id });
+            } else {
+                return done(new Error("User not found"), null);
+            }
         }
-    });
+    );
+    
     passport.use(strategy);
 
     return {
-        initialize: function() {
+        initialize: function () {
             return passport.initialize();
         },
-        authenticate: function() {
+        authenticate: function () {
             return passport.authenticate("jwt", config.jwtSession);
         }
     };
