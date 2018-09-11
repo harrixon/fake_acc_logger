@@ -41,13 +41,30 @@ class AccountServices {
         }
     }
 
-    async getByServiceProvider(info) {
-        // fetch acc info by provider's name
-        // input validation
-        // let serviceProvider = info.serviceProvider.toLowerCase();
-        return new Promise((resolve, reject) => {
-            resolve(sample);
-        });
+    async getByServiceProvider(query) {
+        try {
+            return this.knex("doppelganger")
+                .where({
+                    isActive: true,
+                    serviceProvider: query.serviceProvider,
+                })
+                .select(
+                    "id", 
+                    "ownerUID", 
+                    "accID",
+                    "serviceProvider",
+                    "loginType",
+                    "username",
+                    "email",
+                    "password",
+                    "remark",
+                    "URL",
+                )
+        }
+        catch (err) {
+            console.log("services: ", err);
+            throw new Error (err);
+        }
     }
 
     async getByEmailProvider(info) {

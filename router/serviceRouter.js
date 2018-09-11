@@ -33,7 +33,7 @@ class ServiceRouter {
 
     async getByServiceProvider(req, res){
         return this.accountServices
-            .getByServiceProvider(req.param.serviceProvider)
+            .getByServiceProvider(req.query)
             .then(resultPkg => {
                 res.status(201).json({resultPkg});
             })

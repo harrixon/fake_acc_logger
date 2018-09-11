@@ -2,15 +2,13 @@ const app = require("./../app");
 const request = require("supertest")(app);
 
 describe("router", ()=>{
-    // it ("should handle auth with OAuth2.0");
-    // it ("should allow access to all api only with auth");
 
     this.packageLogin = {
         username: "demo",
         password: "123456"
     };
 
-    this.serviceProvider = {serviceProvider:"origin"};
+    this.serviceProvider = {serviceProvider:"something co."};
     this.emailProvider = {emailProvider:"Google"};
 
     this.packageAdd = {                
@@ -58,6 +56,27 @@ describe("router", ()=>{
         "URL"
     ];
 
+    this.wrongPackageStructure = (pkg) => {
+        let goodPkg = pkg.map(p => {
+            let goodItem = this.packageStructure.map(s =>(p.hasOwnProperty(s)));
+            let itemSet = new Set(goodItem);
+            if (itemSet.has(false)) {
+                return false;
+            } else {
+                return true;
+            }
+        });
+        let pkgSet = new Set (goodPkg);
+        return pkgSet.has(false);
+    }
+
+    this.moreThanOneServiceProvider = (pkg, sp) => {
+        let fail = pkg.find(p => {
+            return (p.serviceProvider != sp.serviceProvider);
+        });
+        return fail;
+    }
+
     beforeAll((done)=>{
         // get login token
         request
@@ -68,6 +87,7 @@ describe("router", ()=>{
             .end((err, res) => {
                 if (err) {
                     console.log(err);
+                    throw new Error (err);
                 } else {
                     this.token = res.body.token;
                     done();
@@ -75,7 +95,7 @@ describe("router", ()=>{
             });
     });
         
-    describe("GET /accList", ()=>{
+    xdescribe("GET /accList", ()=>{
         it("respond with json", (done)=>{
             request
                 .get("/api/service/accList")
@@ -88,17 +108,7 @@ describe("router", ()=>{
                         console.log("spec: ", err);
                         throw new Error (err);
                     } else {
-                        let goodPkg = res.body.resultPkg.map(p => {
-                            let goodObj = this.packageStructure.map(s =>(p.hasOwnProperty(s)));
-                            let strSet = new Set(goodObj);
-                            if (strSet.has(false)) {
-                                return false;
-                            } else {
-                                return true;
-                            }
-                        });
-                        let pkgSet = new Set (goodPkg);
-                        if (pkgSet.has(false)) {
+                        if (this.wrongPackageStructure(res.body.resultPkg)) {
                             console.log("spec: ", "result package structure is wrong!");
                             throw new Error ("result package structure is wrong!");
                         } else {
@@ -119,7 +129,22 @@ describe("router", ()=>{
                 .expect("Content-type", /json/)
                 .expect(201)
                 .end((err, res) => {
-                    err ? console.log(`ERR: ${err}`) : done();
+                    if (err) {
+                        console.log("spec: ", err);
+                        throw new Error (err);
+                    } else {
+                        if (this.wrongPackageStructure(res.body.resultPkg)) {
+                            console.log("spec: ", "result package structure is wrong!");
+                            throw new Error ("result package structure is wrong!");
+                        } else {
+                            if (this.moreThanOneServiceProvider(res.body.resultPkg, this.serviceProvider)) {
+                                console.log("spec: ", "accs more than one service provider is fetched");
+                                throw new Error ("accs more than one service provider is fetched");
+                            } else {
+                                done();
+                            }
+                        }
+                    }
                 });
         });
     });
