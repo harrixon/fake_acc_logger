@@ -14,11 +14,31 @@ class AccountServices {
         this.knex = knex;
     }
 
-    async getListOfAllAccounts() {
+    async getListOfAllAccounts(UID) {
         // get list of all service providers
-        return new Promise((resolve, reject) => {
-            resolve(sample);
-        });
+        try {
+            return this.knex("doppelganger")
+                .where({
+                    isActive: true,
+                    ownerUID: UID,
+                })
+                .select(
+                    "id", 
+                    "ownerUID", 
+                    "accID",
+                    "serviceProvider",
+                    "loginType",
+                    "username",
+                    "email",
+                    "password",
+                    "remark",
+                    "URL",
+                );
+        }
+        catch (err) {
+            console.log("services: ", err);
+            throw new Error (err);
+        }
     }
 
     async getByServiceProvider(info) {

@@ -45,6 +45,18 @@ describe("router", ()=>{
         username: "testing",
         email: "testing@gmail.com",
     };
+    this.packageStructure = [
+        "id", 
+        "ownerUID", 
+        "accID",
+        "serviceProvider",
+        "loginType",
+        "username",
+        "email",
+        "password",
+        "remark",
+        "URL"
+    ];
 
     beforeAll((done)=>{
         // get login token
@@ -72,12 +84,32 @@ describe("router", ()=>{
                 .expect("Content-type", /json/)
                 .expect(201)
                 .end((err, res) => {
-                    err ? console.log(`ERR: ${err}`) : done();
+                    if (err) {
+                        console.log("spec: ", err);
+                        throw new Error (err);
+                    } else {
+                        let goodPkg = res.body.resultPkg.map(p => {
+                            let goodObj = this.packageStructure.map(s =>(p.hasOwnProperty(s)));
+                            let strSet = new Set(goodObj);
+                            if (strSet.has(false)) {
+                                return false;
+                            } else {
+                                return true;
+                            }
+                        });
+                        let pkgSet = new Set (goodPkg);
+                        if (pkgSet.has(false)) {
+                            console.log("spec: ", "result package structure is wrong!");
+                            throw new Error ("result package structure is wrong!");
+                        } else {
+                            done();
+                        }
+                    }
                 });
         });
     });
 
-    describe("GET /byServiceProvider", ()=>{
+    xdescribe("GET /byServiceProvider", ()=>{
         it("respond with json", (done)=>{
             request
                 .get("/api/service/byServiceProvider")
@@ -92,7 +124,7 @@ describe("router", ()=>{
         });
     });
 
-    describe("GET /byEmailProvider", ()=>{
+    xdescribe("GET /byEmailProvider", ()=>{
         it("respond with json", (done)=>{
             request
                 .get("/api/service/byEmailProvider")
@@ -107,7 +139,7 @@ describe("router", ()=>{
         });
     });
 
-    describe("POST /newAcc", ()=>{
+    xdescribe("POST /newAcc", ()=>{
         it("respond with json", (done)=>{
             request
                 .post("/api/service/newAcc")
@@ -122,7 +154,7 @@ describe("router", ()=>{
         });
     });
 
-    describe("POST /updateAcc", ()=>{
+    xdescribe("POST /updateAcc", ()=>{
         it("respond with json", (done)=>{
             request
                 .post("/api/service/updateAcc")
@@ -137,7 +169,7 @@ describe("router", ()=>{
         });
     });
 
-    describe("POST /delAcc", ()=>{
+    xdescribe("POST /delAcc", ()=>{
         it("respond with json", (done)=>{
             request
                 .post("/api/service/delAcc")

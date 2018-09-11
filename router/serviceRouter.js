@@ -7,7 +7,7 @@ class ServiceRouter {
 
     router(){
         const router = this.express.Router();
-
+        // get all acc info by token(UID)
         router.get("/accList", this.getListOfAllAccounts.bind(this));
         // give provider's name, get acc info
         router.get("/byServiceProvider", this.getByServiceProvider.bind(this));
@@ -22,7 +22,7 @@ class ServiceRouter {
 
     getListOfAllAccounts(req, res){
         return this.accountServices
-            .getListOfAllAccounts()
+            .getListOfAllAccounts(req.user.UID)
             .then(resultPkg => {
                 res.status(201).json({resultPkg});
             })

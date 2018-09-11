@@ -20,7 +20,7 @@ module.exports = (authServices) => {
             });
 
             if (user) {
-                return done(null, { id: user.id });
+                return await done(null, { UID: user.UID });
             } else {
                 return done(new Error("User not found"), null);
             }
