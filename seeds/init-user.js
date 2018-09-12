@@ -1,7 +1,7 @@
 const cryptoRandomString = require('crypto-random-string');
-const bcrypt  = require("bcryptjs");
-
 const demoUID = cryptoRandomString(10);
+
+const bcrypt  = require("bcryptjs");
 
 exports.seed = async function(knex, Promise) {
   // Deletes ALL existing entries
@@ -25,31 +25,33 @@ exports.seed = async function(knex, Promise) {
         .then(()=>{
           return knex("doppelganger").insert([
             {
-              id: 1,
+              /* 
+                DO NOT PUT "ID" HERE IN THE SEED
+                OR IT WILL MESS UP POSTGRES OWN PK COUNTER
+              */
               ownerUID: `${demoUID}`,
               accID: `${cryptoRandomString(10)}`,
-              serviceProvider: "something co.",
-              loginType: "local",
-              username: "john doe",
+              serviceProvider: "Origin".toUpperCase(),
+              loginType: "LOCAL",
+              username: "testing",
               email: "",
-              emailServiceProvider: "",
+              emailServiceProvider: "".toUpperCase(),
               password: "some pw hash",
               remark: "",
               URL: "",
               isActive: true
             },
             {
-              id: 2,
               ownerUID: `${demoUID}`,
               accID: `${cryptoRandomString(10)}`,
-              serviceProvider: "another co.",
-              loginType: "social",
-              username: "jane doe",
-              email: "jd4352665675@gmail.com",
-              emailServiceProvider: "Google",
+              serviceProvider: "steam".toUpperCase(),
+              loginType: "SOCIAL",
+              username: "testing",
+              email: "testing@gmail.com",
+              emailServiceProvider: "Google".toUpperCase(),
               password: "",
               remark: "something something",
-              URL: "www.anotherCo/login/",
+              URL: "www.steam.com",
               isActive: true
             }
           ])

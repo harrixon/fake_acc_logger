@@ -15,7 +15,7 @@ exports.up = function (knex, Promise) {
                     doppelganger.string("ownerUID");
                     doppelganger.string("accID").unique();
                     doppelganger.string("serviceProvider").notNullable();
-                    doppelganger.enum("loginType", ["local", "social"]).notNullable();
+                    doppelganger.enum("loginType", ["LOCAL", "SOCIAL"]).notNullable();
                     doppelganger.string("username");
                     doppelganger.string("email");
                     doppelganger.string("emailServiceProvider");
