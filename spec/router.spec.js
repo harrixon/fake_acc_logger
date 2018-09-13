@@ -2,17 +2,11 @@ const app = require("./../app");
 const request = require("supertest")(app);
 const cryptoRandomString = require('crypto-random-string');
 
+const testData = require("./testData");
+
 describe("router", () => {
 
-    const packageLogin = {
-        username: "demo",
-        password: "123456"
-    };
-
     let token = "";
-
-    const serviceProvider = { serviceProvider: "something co." };
-    const emailServiceProvider = { emailServiceProvider: "Google" };
 
     const packageAdd = (name) => {
         return {
@@ -27,64 +21,10 @@ describe("router", () => {
             URL: "",
         }
     };
-    const badPackageAdd = {
-        type: "update",
-        serviceProvider: null,
-        loginType: "LOC",
-        username: "",
-        email: "testing@gmail.com",
-        emailServiceProvider: "Google",
-        password: undefined,
-        remark: "",
-        URL: "",
-    };
-
-    const packageUpdate = {
-        type: "UPDATE",
-        serviceProvider: "origin",
-        loginType: "SOCIAL",
-        username: "testing",
-        email: "testing@gmail.com",
-        update: {
-            newLoginType: "LOCAL",
-            newUsername: "string",
-            newEmail: "string",
-            newPassword: "string",
-            newRemark: "string",
-            newURL: "string",
-        }
-    };
-
-    const packageDeactivate = {
-        type: "DEACTIVATE",
-        accID: "a016641bbc",
-    };
-    const badPackageDeactivate = {
-        type: "DEACTIVA3rewfTE",
-        accID: "a016641bbc",
-    };
-    const badPackageDeactivate2 = {
-        type: "DEACTIVATE",
-        accID: "123423tr",
-    };
-
-    const packageStructure = [
-        "id",
-        "ownerUID",
-        "accID",
-        "serviceProvider",
-        "loginType",
-        "username",
-        "email",
-        "emailServiceProvider",
-        "password",
-        "remark",
-        "URL"
-    ];
 
     const wrongPackageStructure = (pkg) => {
         let goodPkg = pkg.map(p => {
-            let goodItem = packageStructure.map(s => (p.hasOwnProperty(s)));
+            let goodItem = testData.body.add.return_pkg_structure.map(s => (p.hasOwnProperty(s)));
             let itemSet = new Set(goodItem);
             if (itemSet.has(false)) {
                 return false;
@@ -115,7 +55,7 @@ describe("router", () => {
         console.log("=== login to get token ===");
         request
             .post("/api/auth/login")
-            .send(packageLogin)
+            .send(testData.loginPackage)
             .expect("Content-type", /json/)
             .expect(200)
             .end((err, res) => {
@@ -130,7 +70,7 @@ describe("router", () => {
             });
     });
 
-    xdescribe("GET /accList", () => {
+    describe("GET /accList", () => {
         it("should respond with json", done => {
             request
                 .get("/api/service/accList")
@@ -151,24 +91,13 @@ describe("router", () => {
                     }
                 });
         });
-
-        // xit("should reject un-auth request", done => {
-        //     request
-        //         .get("/api/service/accList")
-        //         .set("Accept", "application/json")
-        //         .expect(401)
-        //         .end((err, res) => {
-        //             console.log(err)
-        //             done(err)
-        //         });
-        // })
     });
 
-    xdescribe("GET /byServiceProvider", () => {
+    describe("GET /byServiceProvider", () => {
         it("should respond with json", done => {
             request
                 .get("/api/service/byServiceProvider")
-                .query(serviceProvider)
+                .query(testData.query.serviceProvider)
                 .set('Authorization', 'bearer ' + token)
                 .set("Accept", "application/json")
                 .expect("Content-type", /json/)
@@ -183,7 +112,7 @@ describe("router", () => {
                             throw new Error ("result package structure is wrong!");
                         } else {
                             // check if return pkg is correct
-                            if (moreThanOneServiceProvider(res.body.resultPkg, serviceProvider)) {
+                            if (moreThanOneServiceProvider(res.body.resultPkg, testData.query.serviceProvider)) {
                                 throw new Error ("accs of more than one service provider is fetched");
                             } else {
                                 done();
@@ -196,7 +125,7 @@ describe("router", () => {
         it("should reject invalid query", done => {
             request
                 .get("/api/service/byServiceProvider")
-                .query({ serviceProvider: "" })
+                .query(testData.query.invalid_serviceProvider)
                 .set('Authorization', 'bearer ' + token)
                 .set("Accept", "application/json")
                 .expect("Content-type", "text/html; charset=utf-8")
@@ -212,11 +141,11 @@ describe("router", () => {
         });
     });
 
-    xdescribe("GET /byEmailServiceProvider", () => {
+    describe("GET /byEmailServiceProvider", () => {
         it("should respond with json", done => {
             request
                 .get("/api/service/byEmailServiceProvider")
-                .query(emailServiceProvider)
+                .query(testData.query.emailServiceProvider)
                 .set('Authorization', 'bearer ' + token)
                 .set("Accept", "application/json")
                 .expect("Content-type", /json/)
@@ -229,7 +158,7 @@ describe("router", () => {
                         if (wrongPackageStructure(res.body.resultPkg)) {
                             throw new Error ("result package structure is wrong!");
                         } else {
-                            if (wrongEmailServiceProvider(res.body.resultPkg, emailServiceProvider)) {
+                            if (wrongEmailServiceProvider(res.body.resultPkg, testData.query.emailServiceProvider)) {
                                 throw new Error ("accs of more than one / wrong email service provider is fetched");
                             } else {
                                 done();
@@ -242,7 +171,7 @@ describe("router", () => {
         it("should reject invalid query", done => {
             request
                 .get("/api/service/byEmailServiceProvider")
-                .query({})
+                .query(testData.query.invalid_emailServiceProvider)
                 .set('Authorization', 'bearer ' + token)
                 .set("Accept", "application/json")
                 .expect("Content-type", "text/html; charset=utf-8")
@@ -278,10 +207,10 @@ describe("router", () => {
         it("should reject with acc already exist", done => {
             request
                 .post("/api/service/newAcc")
-                .send(packageAdd("origin"))
+                .send(testData.body.add.duplicateAdd)
                 .set('Authorization', 'bearer ' + token)
                 .set("Accept", "application/json")
-                .expect("Content-type", "text/html; charset=utf-8")
+                // .expect("Content-type", "text/html; charset=utf-8")
                 .expect(400)
                 .end((err, res) => {
                     if (res.error.text === "account already exist") {
@@ -295,7 +224,7 @@ describe("router", () => {
         it("should reject with bad package", done => {
             request
                 .post("/api/service/newAcc")
-                .send(badPackageAdd)
+                .send(testData.body.add.invalid_pkg)
                 .set('Authorization', 'bearer ' + token)
                 .set("Accept", "application/json")
                 .expect("Content-type", "text/html; charset=utf-8")
@@ -310,26 +239,11 @@ describe("router", () => {
         });
     });
 
-    describe("POST /updateAcc", () => {
-        xit("respond with json", done => {
+    xdescribe("POST /updateAcc", () => {
+        it("respond with json", done => {
             request
                 .post("/api/service/updateAcc")
-                .send(packageUpdate)
-                .set('Authorization', 'bearer ' + token)
-                .set("Accept", "application/json")
-                .expect("Content-type", /json/)
-                .expect(200)
-                .end((err, res) => {
-                    err ? console.log(`ERR: ${err}`) : done();
-                });
-        });
-    });
-
-    xdescribe("POST /deactivateAcc", () => {
-        it("should respond with json", done => {
-            request
-                .post("/api/service/deactivateAcc")
-                .send(packageDeactivate)
+                .send(testData.body.update.valid)
                 .set('Authorization', 'bearer ' + token)
                 .set("Accept", "application/json")
                 .expect("Content-type", /json/)
@@ -343,10 +257,80 @@ describe("router", () => {
                 });
         });
 
-        it("should reject bad request", done => {
+        it("should reject wrong action type", done => {
+            request
+                .post("/api/service/updateAcc")
+                .send(testData.body.update.wrong_type)
+                .set('Authorization', 'bearer ' + token)
+                .set("Accept", "application/json")
+                .expect("Content-type", "text/html; charset=utf-8")
+                .expect(400)
+                .end((err, res) => {
+                    if (res.error.text === "bad package") {
+                        done(err);
+                    } else {
+                        throw (err);
+                    }
+                });
+        });
+
+        xit("should reject invalid update details", done => {
+            request
+                .post("/api/service/updateAcc")
+                .send(testData.body.update.invalid_details)
+                .set('Authorization', 'bearer ' + token)
+                .set("Accept", "application/json")
+                .expect("Content-type", "text/html; charset=utf-8")
+                .expect(400)
+                .end((err, res) => {
+                    if (res.error.text === "bad package") {
+                        done(err);
+                    } else {
+                        throw (err);
+                    }
+                });
+        });
+
+        it("should deal with non existing acc", done => {
+            request
+                .post("/api/service/updateAcc")
+                .send(testData.body.update.wrong_accID)
+                .set('Authorization', 'bearer ' + token)
+                .set("Accept", "application/json")
+                .expect("Content-type", "text/html; charset=utf-8")
+                .expect(400)
+                .end((err, res) => {
+                    if (res.error.text === "account does not exist") {
+                        done(err);
+                    } else {
+                        throw (err);
+                    }
+                });
+        });
+    });
+
+    xdescribe("POST /deactivateAcc", () => {
+        it("should respond with json", done => {
             request
                 .post("/api/service/deactivateAcc")
-                .send(badPackageDeactivate)
+                .send(testData.body.deactivate.valid)
+                .set('Authorization', 'bearer ' + token)
+                .set("Accept", "application/json")
+                .expect("Content-type", /json/)
+                .expect(200)
+                .end((err, res) => {
+                    if (err) {
+                        throw (err);
+                    } else {
+                        done();
+                    }
+                });
+        });
+
+        it("should reject wrong action type", done => {
+            request
+                .post("/api/service/deactivateAcc")
+                .send(testData.body.deactivate.wrong_type)
                 .set('Authorization', 'bearer ' + token)
                 .set("Accept", "application/json")
                 .expect("Content-type", "text/html; charset=utf-8")
@@ -363,7 +347,7 @@ describe("router", () => {
         it("should deal with non existing acc", done => {
             request
                 .post("/api/service/deactivateAcc")
-                .send(badPackageDeactivate2)
+                .send(testData.body.deactivate.wrong_accID)
                 .set('Authorization', 'bearer ' + token)
                 .set("Accept", "application/json")
                 .expect("Content-type", "text/html; charset=utf-8")
@@ -375,6 +359,6 @@ describe("router", () => {
                         throw (err);
                     }
                 });
-        })
+        });
     });
 });

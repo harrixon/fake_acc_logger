@@ -88,12 +88,12 @@ class ServiceRouter {
 
     async updateAccount(req, res) {
         return this.accountServices
-            .updateAccount(req.body.actionInfo)
+            .updateAccount(req)
             .then(resultPkg => {
                 res.status(200).json({ resultPkg });
             })
             .catch(err => {
-                if (err.message === "bad package" || "account does not exist") {
+                if (err.message === "bad package" || "account does not exist" || "invalid update details") {
                     res.status(400).send(err.message);
                 } else if (err.message === "missing UID") {
                     res.status(400).send("missing UID");
