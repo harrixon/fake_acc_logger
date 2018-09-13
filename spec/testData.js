@@ -113,7 +113,7 @@ module.exports = {
         deactivate: {
             valid: {
                 type: "DEACTIVATE",
-                accID: "a016641bbc",
+                accID: "6d2d862695",
             },
             wrong_type: {
                 type: "WRONGTYPE",

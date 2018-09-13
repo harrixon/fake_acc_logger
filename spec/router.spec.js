@@ -70,7 +70,7 @@ describe("router", () => {
             });
     });
 
-    describe("GET /accList", () => {
+    xdescribe("GET /accList", () => {
         it("should respond with json", done => {
             request
                 .get("/api/service/accList")
@@ -93,7 +93,7 @@ describe("router", () => {
         });
     });
 
-    describe("GET /byServiceProvider", () => {
+    xdescribe("GET /byServiceProvider", () => {
         it("should respond with json", done => {
             request
                 .get("/api/service/byServiceProvider")
@@ -141,7 +141,7 @@ describe("router", () => {
         });
     });
 
-    describe("GET /byEmailServiceProvider", () => {
+    xdescribe("GET /byEmailServiceProvider", () => {
         it("should respond with json", done => {
             request
                 .get("/api/service/byEmailServiceProvider")
@@ -210,7 +210,7 @@ describe("router", () => {
                 .send(testData.body.add.duplicateAdd)
                 .set('Authorization', 'bearer ' + token)
                 .set("Accept", "application/json")
-                // .expect("Content-type", "text/html; charset=utf-8")
+                .expect("Content-type", "text/html; charset=utf-8")
                 .expect(400)
                 .end((err, res) => {
                     if (res.error.text === "account already exist") {
@@ -309,14 +309,14 @@ describe("router", () => {
         });
     });
 
-    xdescribe("POST /deactivateAcc", () => {
+    describe("POST /deactivateAcc", () => {
         it("should respond with json", done => {
             request
                 .post("/api/service/deactivateAcc")
                 .send(testData.body.deactivate.valid)
                 .set('Authorization', 'bearer ' + token)
                 .set("Accept", "application/json")
-                .expect("Content-type", /json/)
+                // .expect("Content-type", /json/)
                 .expect(200)
                 .end((err, res) => {
                     if (err) {

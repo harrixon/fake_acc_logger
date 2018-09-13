@@ -148,93 +148,93 @@ class AccountServices {
         }
     }
 
-    // async addAccount(req) {
-    //     let actionInfo = req.body;
-    //     let UID = req.user.UID;
+    async addAccount(req) {
+        let actionInfo = req.body;
+        let UID = req.user.UID;
 
-    //     try {
-    //         // check request integrity
-    //         if (
-    //             actionInfo.type !== "ADD"
-    //             || typeof (actionInfo.serviceProvider) !== "string"
-    //             || actionInfo.serviceProvider.trim() === ""
-    //             || !(actionInfo.loginType === "LOCAL" || actionInfo.loginType === "SOCIAL")
-    //         ) {
-    //             throw new Error("bad package");
-    //         } else if (
-    //             actionInfo.loginType === "LOCAL"
-    //             && (
-    //                 typeof (actionInfo.username) !== "string"
-    //                 || actionInfo.username.trim() === ""
-    //                 || typeof (actionInfo.password) !== "string"
-    //                 || actionInfo.password.trim() === ""
-    //             )
-    //         ) {
-    //             throw new Error("bad package");
-    //         } else if (
-    //             actionInfo.loginType === "SOCIAL"
-    //             && (
-    //                 typeof (actionInfo.email) !== "string"
-    //                 || actionInfo.email.trim() === ""
-    //                 || typeof (actionInfo.emailServiceProvider) !== "string"
-    //                 || actionInfo.emailServiceProvider.trim() === ""
-    //             )
-    //         ) {
-    //             throw new Error("bad package");
-    //         } else if (this.missingUID(UID)) {
-    //             throw new Error("missing UID");
-    //         } else {
-    //             let line =
-    //                 await this.knex("doppelganger")
-    //                     .where({
-    //                         isActive: true,
-    //                         ownerUID: UID,
-    //                         serviceProvider: actionInfo.serviceProvider.toUpperCase(),
-    //                         username: actionInfo.username,
-    //                         loginType: actionInfo.loginType,
-    //                     })
-    //                     .select("accID");
+        try {
+            // check request integrity
+            if (
+                actionInfo.type !== "ADD"
+                || typeof (actionInfo.serviceProvider) !== "string"
+                || actionInfo.serviceProvider.trim() === ""
+                || !(actionInfo.loginType === "LOCAL" || actionInfo.loginType === "SOCIAL")
+            ) {
+                throw new Error("bad package");
+            } else if (
+                actionInfo.loginType === "LOCAL"
+                && (
+                    typeof (actionInfo.username) !== "string"
+                    || actionInfo.username.trim() === ""
+                    || typeof (actionInfo.password) !== "string"
+                    || actionInfo.password.trim() === ""
+                )
+            ) {
+                throw new Error("bad package");
+            } else if (
+                actionInfo.loginType === "SOCIAL"
+                && (
+                    typeof (actionInfo.email) !== "string"
+                    || actionInfo.email.trim() === ""
+                    || typeof (actionInfo.emailServiceProvider) !== "string"
+                    || actionInfo.emailServiceProvider.trim() === ""
+                )
+            ) {
+                throw new Error("bad package");
+            } else if (this.missingUID(UID)) {
+                throw new Error("missing UID");
+            } else {
+                let line =
+                    await this.knex("doppelganger")
+                        .where({
+                            isActive: true,
+                            ownerUID: UID,
+                            serviceProvider: actionInfo.serviceProvider.toUpperCase(),
+                            username: actionInfo.username,
+                            loginType: actionInfo.loginType,
+                        })
+                        .select("accID");
 
-    //             console.log("EXIST:", line);
+                console.log("EXIST:", line);
 
-    //             if (line.length !== 0) {
-    //                 throw new Error("account already exist");
-    //             } else {
-    //                 let accIDList = await this.knex("doppelganger").select("accID");
-    //                 let accID = this.genAccID(accIDList);
+                if (line.length !== 0) {
+                    throw new Error("account already exist");
+                } else {
+                    let accIDList = await this.knex("doppelganger").select("accID");
+                    let accID = this.genAccID(accIDList);
 
-    //                 return this.knex("doppelganger")
-    //                     .insert({
-    //                         ownerUID: UID,
-    //                         accID: accID,
-    //                         serviceProvider: actionInfo.serviceProvider.toUpperCase(),
-    //                         loginType: actionInfo.loginType.toUpperCase(),
-    //                         username: actionInfo.username,
-    //                         email: actionInfo.email,
-    //                         emailServiceProvider: actionInfo.emailServiceProvider.toUpperCase(),
-    //                         password: actionInfo.password,
-    //                         remark: actionInfo.remark,
-    //                         URL: actionInfo.URL,
-    //                         isActive: true,
-    //                     })
-    //                     .returning("accID")
-    //             }
-    //         }
-    //     }
-    //     catch (err) {
-    //         if (
-    //             err.message === "bad package"
-    //             || err.message === "missing UID"
-    //             || err.message === "account already exist"
-    //         ) {
-    //             console.log(err)
-    //             throw (err);
-    //         } else {
-    //             console.log("service:", err);
-    //             throw new Error(err);
-    //         }
-    //     }
-    // }
+                    return this.knex("doppelganger")
+                        .insert({
+                            ownerUID: UID,
+                            accID: accID,
+                            serviceProvider: actionInfo.serviceProvider.toUpperCase(),
+                            loginType: actionInfo.loginType.toUpperCase(),
+                            username: actionInfo.username,
+                            email: actionInfo.email,
+                            emailServiceProvider: actionInfo.emailServiceProvider.toUpperCase(),
+                            password: actionInfo.password,
+                            remark: actionInfo.remark,
+                            URL: actionInfo.URL,
+                            isActive: true,
+                        })
+                        .returning("accID")
+                }
+            }
+        }
+        catch (err) {
+            if (
+                err.message === "bad package"
+                || err.message === "missing UID"
+                || err.message === "account already exist"
+            ) {
+                console.log(err)
+                throw (err);
+            } else {
+                console.log("service:", err);
+                throw new Error(err);
+            }
+        }
+    }
 
     // async updateAccount(req) {
     //     let actionInfo = req.body;
@@ -286,56 +286,59 @@ class AccountServices {
     //     }
     // }
 
-    // async deactivateAccount(req) {
-    //     let actionInfo = req.body;
-    //     let UID = req.user.UID;
+    async deactivateAccount(req) {
+        let actionInfo = req.body;
+        let UID = req.user.UID;
 
-    //     try {
-    //         // check request integrity
-    //         if (
-    //             actionInfo.type !== "DEACTIVATE"
-    //             || typeof (actionInfo.accID) !== "string"
-    //             || actionInfo.accID.trim() === ""
-    //         ) {
-    //             throw new Error("bad package");
-    //         } else if (this.missingUID(UID)) {
-    //             throw new Error("missing UID");
-    //         } else {
-    //             let accIDList = await this.knex("doppelganger")
-    //                 .where({
-    //                     isActive: true,
-    //                     ownerUID: UID,
-    //                 })
-    //                 .select("accID");
+        try {
+            // check request integrity
+            if (
+                actionInfo.type !== "DEACTIVATE"
+                || typeof (actionInfo.accID) !== "string"
+                || actionInfo.accID.trim() === ""
+            ) {
+                throw new Error("bad package");
+            } else if (this.missingUID(UID)) {
+                throw new Error("missing UID");
+            } else {
+                let accIDList = await this.knex("doppelganger")
+                    .where({
+                        // "allow" inActive acc to "change" to inactive
+                        ownerUID: UID,
+                    })
+                    .select("accID");
 
-    //             let exist = accIDList.find(a => (a.accID === actionInfo.accID));
+                let exist = accIDList.find(a => (a.accID === actionInfo.accID));
 
-    //             if (!exist) {
-    //                 throw new Error("account does not exist");
-    //             } else {
-    //                 return await this.knex("doppelganger")
-    //                     .where({
-    //                         ownerUID: UID,
-    //                         accID: actionInfo.accID,
-    //                     }).update({
-    //                         isActive: false
-    //                     });
-    //             }
-    //         }
-    //     }
-    //     catch (err) {
-    //         if (
-    //             err.message === "bad package"
-    //             || err.message === "missing UID"
-    //             || err.message === "account does not exist"
-    //         ) {
-    //             throw (err);
-    //         } else {
-    //             console.log("service:", err);
-    //             throw new Error(err);
-    //         }
-    //     }
-    // }
+                if (!exist) {
+                    throw new Error("account does not exist");
+                } else {
+                    // will return 1 if successfully overwritten
+                    // does not matter if content is not actually changed
+                    return await this.knex("doppelganger")
+                        .where({
+                            ownerUID: UID,
+                            accID: actionInfo.accID,
+                        }).update({
+                            isActive: false
+                        });
+                }
+            }
+        }
+        catch (err) {
+            if (
+                err.message === "bad package"
+                || err.message === "missing UID"
+                || err.message === "account does not exist"
+            ) {
+                console.log(err.message)
+                throw (err);
+            } else {
+                console.log("service:", err);
+                throw new Error(err);
+            }
+        }
+    }
 
     genAccID(accIDList) {
         let accID = cryptoRandomString(10);
