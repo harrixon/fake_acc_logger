@@ -1,3 +1,7 @@
+/*
+    shall add regex check on email and ID input
+*/
+
 const Promise = require("bluebird");
 
 const cryptoRandomString = require('crypto-random-string');
@@ -89,8 +93,7 @@ class AccountServices {
         }
         catch (err) {
             if (
-                err.message === "invalid query"
-                || err.message === "missing UID"
+                err.message === "invalid query" || "missing UID"
             ) {
                 throw (err);
             } else {
@@ -137,8 +140,7 @@ class AccountServices {
         }
         catch (err) {
             if (
-                err.message === "invalid query"
-                || err.message === "missing UID"
+                err.message === "invalid query" || "missing UID"
             ) {
                 throw (err);
             } else {
@@ -223,11 +225,9 @@ class AccountServices {
         }
         catch (err) {
             if (
-                err.message === "bad package"
-                || err.message === "missing UID"
-                || err.message === "account already exist"
+                err.message === "bad package" || "missing UID" || "account already exist"
             ) {
-                console.log(err)
+                // console.log(err.message)
                 throw (err);
             } else {
                 console.log("service:", err);
@@ -236,55 +236,51 @@ class AccountServices {
         }
     }
 
-    // async updateAccount(req) {
-    //     let actionInfo = req.body;
-    //     let UID = req.user.UID;
+    async updateAccount(req) {
+        let actionInfo = req.body;
+        let UID = req.user.UID;
 
-    //     try {
-    //         if (
-    //             actionInfo.type !== "UPDATE"
-    //             || typeof (actionInfo.accID) !== "string"
-    //             || actionInfo.accID.trim() === ""
-    //         ) {
-    //             throw new Error("bad package");
-    //         } else if (this.invalidUpdateDetails(actionInfo.details)) {
-    //             throw new Error("invalid update details");
-    //         } else if (this.missingUID(UID)) {
-    //             throw new Error("missing UID");
-    //         } else {
-    //             let accIDList = await this.knex("doppelganger")
-    //                 .where({
-    //                     isActive: true,
-    //                     ownerUID: UID,
-    //                 })
-    //                 .select("accID");
-
-    //             let exist = accIDList.find(a => (a.accID === actionInfo.accID));
-
-    //             if (!exist) {
-    //                 throw new Error("account does not exist");
-    //             } else {
-    //                 let package = this.sanitizeUpdateDetails(actionInfo.details);
-    //                 return this.knex("doppelganger")
-    //                     .where({ accID: actionInfo.accID })
-    //                     .update(package);
-    //             }
-    //         }
-    //     }
-    //     catch (err) {
-    //         if (
-    //             err.message === "bad package"
-    //             || err.message === "missing UID"
-    //             || err.message === "invalid update details"
-    //             || err.message === "account does not exist"
-    //         ) {
-    //             throw (err);
-    //         } else {
-    //             console.log("service:", err);
-    //             throw new Error(err);
-    //         }
-    //     }
-    // }
+        try {
+            if (
+                actionInfo.type !== "UPDATE"
+                || typeof (actionInfo.accID) !== "string"
+                || actionInfo.accID.trim() === ""
+            ) {
+                throw new Error("bad package");
+            } else if (this.invalidUpdateDetails(actionInfo.details)) {
+                throw new Error("invalid update details");
+            } else if (this.missingUID(UID)) {
+                throw new Error("missing UID");
+            } else {
+                let accExist = await this.accExist(UID, actionInfo.accID);
+                if (!accExist) {
+                    throw new Error("account does not exist");
+                } else {
+                    let cleanPackage = this.sanitizeUpdateDetails(actionInfo.details);
+                    return this.knex("doppelganger")
+                        .where({
+                            ownerUID: UID,
+                            accID: actionInfo.accID
+                        })
+                        .update(cleanPackage);
+                }
+            }
+        }
+        catch (err) {
+            if (
+                err.message === "bad package"
+                || "invalid update details"
+                || "account does not exist"
+                || "missing UID"
+            ) {
+                // console.log(err.message)
+                throw (err);
+            } else {
+                console.log("service:", err);
+                throw new Error(err);
+            }
+        }
+    }
 
     async deactivateAccount(req) {
         let actionInfo = req.body;
@@ -301,16 +297,9 @@ class AccountServices {
             } else if (this.missingUID(UID)) {
                 throw new Error("missing UID");
             } else {
-                let accIDList = await this.knex("doppelganger")
-                    .where({
-                        // "allow" inActive acc to "change" to inactive
-                        ownerUID: UID,
-                    })
-                    .select("accID");
-
-                let exist = accIDList.find(a => (a.accID === actionInfo.accID));
-
-                if (!exist) {
+                //                                                      vvv include in-active
+                let accExist = await this.accExist(UID, actionInfo.accID, true);
+                if (!accExist) {
                     throw new Error("account does not exist");
                 } else {
                     // will return 1 if successfully overwritten
@@ -328,8 +317,8 @@ class AccountServices {
         catch (err) {
             if (
                 err.message === "bad package"
-                || err.message === "missing UID"
-                || err.message === "account does not exist"
+                || "missing UID"
+                || "account does not exist"
             ) {
                 console.log(err.message)
                 throw (err);
@@ -356,11 +345,31 @@ class AccountServices {
         return (typeof (UID) !== "string" || UID.trim() === "");
     }
 
+    async accExist(UID, accID, includeInActive = false) {
+        let accIDList = [];
+        if (includeInActive) {
+            accIDList = await this.knex("doppelganger")
+            .where({
+                ownerUID: UID,
+            })
+            .select("accID");
+        } else {
+            accIDList = await this.knex("doppelganger")
+                .where({
+                    isActive: true,
+                    ownerUID: UID,
+                })
+                .select("accID");
+        }
+        return accIDList.find(a => (a.accID === accID));
+    }
+
     invalidUpdateDetails(details) {
         // check all input are strings
+        const allowed = new Set(["loginType", "username", "email", "password", "remark", "URL"]);
         let keys = Object.getOwnPropertyNames(details);
         keys.forEach(k => {
-            if (typeof (details[k]) !== "string") {
+            if (!allowed.has(k)) {
                 return true;
             }
         });
@@ -389,18 +398,18 @@ class AccountServices {
         return false;
     }
 
-    sanitizeUpdateDetails (details) {
+    sanitizeUpdateDetails(details) {
         let pkg = {};
         // allowed, might not be necessary
-        let allowed = new Set ([loginType, username, email, password, remark, URL]);
-        Object.getOwnPropertyNames(details).forEach(k => {
+        const allowed = new Set(["loginType", "username", "email", "password", "remark", "URL"]);
+        let keys = Object.getOwnPropertyNames(details);
+        keys.forEach(k => {
             if (allowed.has(k)) {
                 pkg[k] = details[k];
             }
         });
         return pkg;
     }
-
 }
 
 module.exports = AccountServices;

@@ -28,7 +28,7 @@ class ServiceRouter {
             })
             .catch(err => {
                 if (err.message === "missing UID") {
-                    res.status(400).send("missing UID");    
+                    res.status(400).send("missing UID");
                 } else {
                     res.status(500).send(err);
                 }
@@ -76,7 +76,9 @@ class ServiceRouter {
                 res.status(200).json({ resultPkg });
             })
             .catch(err => {
-                if (err.message === "bad package" || "account already exist") {
+                if (
+                    err.message === "bad package" || "account already exist"
+                ) {
                     res.status(400).send(err.message);
                 } else if (err.message === "missing UID") {
                     res.status(400).send("missing UID");
@@ -93,7 +95,11 @@ class ServiceRouter {
                 res.status(200).json({ resultPkg });
             })
             .catch(err => {
-                if (err.message === "bad package" || "account does not exist" || "invalid update details") {
+                if (
+                    err.message === "bad package"
+                    || "invalid update details"
+                    || "account does not exist"
+                ) {
                     res.status(400).send(err.message);
                 } else if (err.message === "missing UID") {
                     res.status(400).send("missing UID");
@@ -110,7 +116,9 @@ class ServiceRouter {
                 res.status(200).json({ resultPkg });
             })
             .catch(err => {
-                if (err.message === "bad package" || "account does not exist") {
+                if (
+                    err.message === "bad package" || "account does not exist"
+                ) {
                     res.status(400).send(err.message);
                 } else if (err.message === "missing UID") {
                     res.status(400).send("missing UID");

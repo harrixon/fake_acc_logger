@@ -70,7 +70,7 @@ describe("router", () => {
             });
     });
 
-    xdescribe("GET /accList", () => {
+    describe("GET /accList", () => {
         it("should respond with json", done => {
             request
                 .get("/api/service/accList")
@@ -93,7 +93,7 @@ describe("router", () => {
         });
     });
 
-    xdescribe("GET /byServiceProvider", () => {
+    describe("GET /byServiceProvider", () => {
         it("should respond with json", done => {
             request
                 .get("/api/service/byServiceProvider")
@@ -141,7 +141,7 @@ describe("router", () => {
         });
     });
 
-    xdescribe("GET /byEmailServiceProvider", () => {
+    describe("GET /byEmailServiceProvider", () => {
         it("should respond with json", done => {
             request
                 .get("/api/service/byEmailServiceProvider")
@@ -186,7 +186,7 @@ describe("router", () => {
         });
     });
 
-    xdescribe("POST /newAcc", () => {
+    describe("POST /newAcc", () => {
         it("should respond with json", done => {
             request
                 .post("/api/service/newAcc")
@@ -239,7 +239,7 @@ describe("router", () => {
         });
     });
 
-    xdescribe("POST /updateAcc", () => {
+    describe("POST /updateAcc", () => {
         it("respond with json", done => {
             request
                 .post("/api/service/updateAcc")
@@ -274,7 +274,7 @@ describe("router", () => {
                 });
         });
 
-        xit("should reject invalid update details", done => {
+        it("should reject invalid update details", done => {
             request
                 .post("/api/service/updateAcc")
                 .send(testData.body.update.invalid_details)
@@ -283,7 +283,7 @@ describe("router", () => {
                 .expect("Content-type", "text/html; charset=utf-8")
                 .expect(400)
                 .end((err, res) => {
-                    if (res.error.text === "bad package") {
+                    if (res.error.text === "invalid update details") {
                         done(err);
                     } else {
                         throw (err);
