@@ -99,22 +99,65 @@ module.exports = {
                     URL: "wrong_accID",
                 }
             },
-            invalid_details: {
-                type: "UPDATE",
-                serviceProvider: "origin",
-                accID: "a016641bbc",
-                details: {
-                    UID: "invalid_input",
-                    accID: "invalid_input",
-                    loginType: "LOCAL",
-                    username: "",
-                    email: "",
-                    password: "invalid_details",
-                    URL: "invalid_details",
-                    fakeColumn: "",
-                    fakeColumn2: undefined,
-                }
-            }
+            invalid_details: [
+                {
+                    // invalid col
+                    type: "UPDATE",
+                    serviceProvider: "origin",
+                    accID: "accID0001",
+                    details: {
+                        loginType: "LOCAL",
+                        username: "",
+                        email: "",
+                        password: "invalid_details",
+                        remark: "",
+                        URL: "invalid_details",
+                        fakeColumn: "fake",
+                    }
+                },
+                // invalid login-type update
+                {
+                    type: "UPDATE",
+                    serviceProvider: "origin",
+                    accID: "accID0001",
+                    details: {
+                        loginType: "LOCAL",
+                        username: "   ",
+                        password: "sadfg",
+                    }
+                },
+                {
+                    type: "UPDATE",
+                    serviceProvider: "origin",
+                    accID: "accID0001",
+                    details: {
+                        loginType: "LOCAL",
+                        username: "asdfg",
+                        password: "     ",
+                    }
+                },
+                {
+                    type: "UPDATE",
+                    serviceProvider: "origin",
+                    accID: "accID0001",
+                    details: {
+                        loginType: "SOCIAL",
+                        email: "sadf@gmail.com",
+                        emailServiceProvider: "    ",
+                    }
+                },
+                {
+                    type: "UPDATE",
+                    serviceProvider: "origin",
+                    accID: "accID0001",
+                    details: {
+                        loginType: "SOCIAL",
+                        email: "   ",
+                        emailServiceProvider: "sadfg",
+                    }
+                },
+            ]
+            
         },
         deactivate: {
             valid: {

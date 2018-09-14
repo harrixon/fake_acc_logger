@@ -368,20 +368,31 @@ describe("router", () => {
         });
 
         it("should reject invalid update details", done => {
-            request
-                .post("/api/service/updateAcc")
-                .send(testData.body.update.invalid_details)
-                .set('Authorization', 'bearer ' + token)
-                .set("Accept", "application/json")
-                .expect("Content-type", "text/html; charset=utf-8")
-                .expect(400)
-                .end((err, res) => {
-                    if (res.error.text === "invalid update details") {
-                        done(err);
-                    } else {
-                        throw (err);
-                    }
-                });
+            try {
+                Promise.all(
+                    testData.body.update.invalid_details.map(d => {
+                        request
+                        .post("/api/service/updateAcc")
+                        .send(d)
+                        .set('Authorization', 'bearer ' + token)
+                        .set("Accept", "application/json")
+                        .expect("Content-type", "text/html; charset=utf-8")
+                        .expect(400)
+                        .end((err, res) => {
+                            if (res.error.text === "invalid update details") {
+                                // done(err);
+                            } else {
+                                throw (err);
+                            }
+                        });
+                    })
+                )
+                done();
+            }
+            catch (err) {
+                console.log(err);
+                throw err;
+            }
         });
 
         it("should deal with non existing acc", done => {
