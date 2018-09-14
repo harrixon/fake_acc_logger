@@ -70,7 +70,7 @@ class AccountServices {
             } else if (this.missingUID(UID)) {
                 throw new Error("missing UID");
             } else {
-                return this.knex("doppelganger")
+                let result = await this.knex("doppelganger")
                     .where({
                         isActive: true,
                         ownerUID: UID,
@@ -88,7 +88,13 @@ class AccountServices {
                         "password",
                         "remark",
                         "URL",
-                    )
+                    );
+                if (result.length === 0) {
+                    // result = []
+                    return ("not_found");
+                } else {
+                    return result;
+                }
             }
         }
         catch (err) {
@@ -117,7 +123,7 @@ class AccountServices {
             } else if (this.missingUID(UID)) {
                 throw new Error("missing UID");
             } else {
-                return this.knex("doppelganger")
+                let result = await this.knex("doppelganger")
                     .where({
                         isActive: true,
                         ownerUID: UID,
@@ -136,6 +142,12 @@ class AccountServices {
                         "remark",
                         "URL",
                     );
+                    console.log(result)
+                if (result.length === 0) {
+                    return ("not_found");
+                } else {
+                    return result;
+                }
             }
         }
         catch (err) {

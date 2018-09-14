@@ -5,17 +5,23 @@ module.exports = {
     },
     query: {
         serviceProvider: {
-            serviceProvider: "something co."
+            serviceProvider: "Origin"
         },
-        invalid_serviceProvider: {
-            serviceProvider: ""
+        serviceProvider_notFound: {
+            serviceProvider: "noSuchCompany"
         },
-        emailServiceProvider: { 
+        invalid_serviceProvider: [
+            { serviceProvider: "" }, { serviceProvider: undefined }, { sadfgffdb: "adsfgndfdgbd" }, {serviceProvider: {}}
+        ],
+        emailServiceProvider: {
             emailServiceProvider: "Google"
         },
-        invalid_emailServiceProvider: { 
-            emailServiceProvider: ""
+        emailServiceProvider_notFound: {
+            emailServiceProvider: "noSuchProvider"
         },
+        invalid_emailServiceProvider: [
+            { emailServiceProvider: "" }, { emailServiceProvider: undefined }, { sadfgffdb: "adsfgndfdgbd" }, {serviceProvider: {}}
+        ]
     },
     body: {
         add: {
@@ -59,7 +65,7 @@ module.exports = {
             valid: {
                 type: "UPDATE",
                 serviceProvider: "origin",
-                accID: "589296a354",
+                accID: "accID0001",
                 details: {
                     loginType: "LOCAL",
                     username: "updated",
@@ -113,7 +119,7 @@ module.exports = {
         deactivate: {
             valid: {
                 type: "DEACTIVATE",
-                accID: "6d2d862695",
+                accID: "accID0001",
             },
             wrong_type: {
                 type: "WRONGTYPE",
@@ -124,5 +130,61 @@ module.exports = {
                 accID: "realIDhas10char",
             }
         }
+    },
+    seeds: {
+        accs: [
+            {
+                ownerUID: "12cb97a020",
+                accID: `accID0001`,
+                serviceProvider: "Origin".toUpperCase(),
+                loginType: "LOCAL",
+                username: "testing",
+                email: "",
+                emailServiceProvider: "".toUpperCase(),
+                password: "somepwhash",
+                remark: "",
+                URL: "",
+                isActive: true
+            },
+            {
+                ownerUID: "12cb97a020",
+                accID: "accID0002",
+                serviceProvider: "steam".toUpperCase(),
+                loginType: "SOCIAL",
+                username: "testing",
+                email: "testing@gmail.com",
+                emailServiceProvider: "Google".toUpperCase(),
+                password: "",
+                remark: "somethingsomething",
+                URL: "www.steam.com",
+                isActive: true
+            },
+            {
+                ownerUID: "12cb97a020",
+                accID: `accID0003`,
+                serviceProvider: "cube".toUpperCase(),
+                loginType: "SOCIAL",
+                username: "cubic",
+                email: "cubic@gmail.com",
+                emailServiceProvider: "google".toUpperCase(),
+                password: "somePWhash",
+                remark: "",
+                URL: "",
+                isActive: true
+            },
+            {
+                ownerUID: "00UID00004",
+                accID: `accID0005`,
+                serviceProvider: "se".toUpperCase(),
+                loginType: "LOCAL",
+                username: "SE",
+                email: "se@gmail.com",
+                emailServiceProvider: "google".toUpperCase(),
+                password: "SomePWhasH",
+                remark: "",
+                URL: "",
+                isActive: true
+            },
+        ]
     }
 }

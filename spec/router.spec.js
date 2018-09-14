@@ -2,6 +2,15 @@ const app = require("./../app");
 const request = require("supertest")(app);
 const cryptoRandomString = require('crypto-random-string');
 
+const dotenv = require("dotenv");
+dotenv.config();
+
+const Knex = require("knex");
+const KnexConfig = require("./../knexfile");
+const knex = Knex(KnexConfig[process.env.currentEnv]);
+
+let Promise = require("bluebird");
+
 const testData = require("./testData");
 
 describe("router", () => {
@@ -38,7 +47,7 @@ describe("router", () => {
 
     const moreThanOneServiceProvider = (pkg, sp) => {
         let fail = pkg.find(p => {
-            return (p.serviceProvider != sp.serviceProvider);
+            return (p.serviceProvider.toUpperCase() != sp.serviceProvider.toUpperCase());
         });
         return fail;
     }
@@ -70,6 +79,20 @@ describe("router", () => {
             });
     });
 
+    beforeEach(async() => {
+        // b4 each "describe"
+        // reset table
+        console.log("=== reset table ===");
+        await knex("doppelganger").del();
+        await knex("doppelganger").insert(testData.seeds.accs);
+        // let a = await knex("doppelganger").where({emailServiceProvider: "GOOGLE"}).select("accID");
+        // console.log("find", a);
+    });
+
+    afterEach(async() => {
+        await knex("doppelganger").del();
+    });
+
     describe("GET /accList", () => {
         it("should respond with json", done => {
             request
@@ -84,7 +107,7 @@ describe("router", () => {
                         throw err;
                     } else {
                         if (wrongPackageStructure(res.body.resultPkg)) {
-                            throw new Error ("result package structure is wrong!");
+                            throw new Error("result package structure is wrong!");
                         } else {
                             done();
                         }
@@ -107,13 +130,17 @@ describe("router", () => {
                         console.log("spec: ", err);
                         throw (err);
                     } else {
+                        // check if found
+                        if (res.body.resultPkg === "not_found") {
+                            throw new Error("failed to find lines suppose to exist");
+                        }
                         // check if return pkg structure is correct
-                        if (wrongPackageStructure(res.body.resultPkg)) {
-                            throw new Error ("result package structure is wrong!");
+                        else if (wrongPackageStructure(res.body.resultPkg)) {
+                            throw new Error("result package structure is wrong!");
                         } else {
                             // check if return pkg is correct
                             if (moreThanOneServiceProvider(res.body.resultPkg, testData.query.serviceProvider)) {
-                                throw new Error ("accs of more than one service provider is fetched");
+                                throw new Error("accs of more than one service provider is fetched");
                             } else {
                                 done();
                             }
@@ -122,22 +149,68 @@ describe("router", () => {
                 });
         });
 
-        it("should reject invalid query", done => {
+        it("should handle not found", done => {
             request
                 .get("/api/service/byServiceProvider")
-                .query(testData.query.invalid_serviceProvider)
+                .query(testData.query.serviceProvider_notFound)
                 .set('Authorization', 'bearer ' + token)
                 .set("Accept", "application/json")
-                .expect("Content-type", "text/html; charset=utf-8")
-                .expect(400)
+                .expect("Content-type", /json/)
+                .expect(200)
                 .end((err, res) => {
-                    if (res.error.text === "invalid query") {
-                        done(err);
+                    if (err) {
+                        console.log("spec: ", err);
+                        throw (err);
+                    } else if (res.body.resultPkg === "not_found") {
+                        done();
                     } else {
-                        console.log(`ERR: ${err}`);
-                        throw new Error (err);
+                        throw new Error("Failed to handle lines not found");
                     }
                 });
+        });
+
+        it("should reject invalid query", done => {
+            try {
+                Promise.all(
+                    testData.query.invalid_serviceProvider.map(q => {
+                        request
+                        .get("/api/service/byServiceProvider")
+                        .query(q)
+                        .set('Authorization', 'bearer ' + token)
+                        .set("Accept", "application/json")
+                        .expect("Content-type", "text/html; charset=utf-8")
+                        .expect(400)
+                        .end((err, res) => {
+                            if (res.error.text === "invalid query") {
+                                // done(err);
+                            } else {
+                                console.log(`ERR: ${err}`);
+                                throw new Error(err);
+                            }
+                        });        
+                    })
+                );
+                done();
+            }
+            catch (err) {
+                console.log(err);
+                throw new Error (err);
+            }
+            // request
+            //     .get("/api/service/byServiceProvider")
+            //     .query(testData.query.invalid_serviceProvider_1)
+            //     .set('Authorization', 'bearer ' + token)
+            //     .set("Accept", "application/json")
+            //     .expect("Content-type", "text/html; charset=utf-8")
+            //     .expect(400)
+            //     .end((err, res) => {
+            //         if (res.error.text === "invalid query") {
+            //             done(err);
+            //         } else {
+            //             console.log(`ERR: ${err}`);
+            //             throw new Error(err);
+            //         }
+            //     });
         });
     });
 
@@ -155,11 +228,14 @@ describe("router", () => {
                         console.log("spec: ", err);
                         done(err);
                     } else {
-                        if (wrongPackageStructure(res.body.resultPkg)) {
-                            throw new Error ("result package structure is wrong!");
+                        if (res.body.resultPkg === "not_found") {
+                            throw new Error("failed to find lines suppose to exist");
+                        }
+                        else if (wrongPackageStructure(res.body.resultPkg)) {
+                            throw new Error("result package structure is wrong!");
                         } else {
                             if (wrongEmailServiceProvider(res.body.resultPkg, testData.query.emailServiceProvider)) {
-                                throw new Error ("accs of more than one / wrong email service provider is fetched");
+                                throw new Error("accs of more than one / wrong email service provider is fetched");
                             } else {
                                 done();
                             }
@@ -168,21 +244,67 @@ describe("router", () => {
                 });
         });
 
-        it("should reject invalid query", done => {
+        it("should handle not found", done => {
             request
                 .get("/api/service/byEmailServiceProvider")
-                .query(testData.query.invalid_emailServiceProvider)
+                .query(testData.query.emailServiceProvider_notFound)
                 .set('Authorization', 'bearer ' + token)
                 .set("Accept", "application/json")
-                .expect("Content-type", "text/html; charset=utf-8")
-                .expect(400)
+                .expect("Content-type", /json/)
+                .expect(200)
                 .end((err, res) => {
-                    if (res.error.text === "invalid query") {
-                        done(err);
-                    } else {
+                    if (err) {
+                        console.log("spec: ", err);
                         throw (err);
+                    } else if (res.body.resultPkg === "not_found") {
+                        done();
+                    } else {
+                        throw new Error("Failed to handle lines not found");
                     }
                 });
+        });
+
+        it("should reject invalid query", done => {
+            try {
+                Promise.all(
+                    testData.query.invalid_emailServiceProvider.map(q => {
+                        request
+                        .get("/api/service/byEmailServiceProvider")
+                        .query(q)
+                        .set('Authorization', 'bearer ' + token)
+                        .set("Accept", "application/json")
+                        .expect("Content-type", "text/html; charset=utf-8")
+                        .expect(400)
+                        .end((err, res) => {
+                            if (res.error.text === "invalid query") {
+                                // done(err);
+                            } else {
+                                console.log(`ERR: ${err}`);
+                                throw new Error(err);
+                            }
+                        });        
+                    })
+                );
+                done();
+            }
+            catch (err) {
+                console.log(err);
+                throw new Error (err);
+            }
+            // request
+            //     .get("/api/service/byEmailServiceProvider")
+            //     .query(testData.query.invalid_emailServiceProvider)
+            //     .set('Authorization', 'bearer ' + token)
+            //     .set("Accept", "application/json")
+            //     .expect("Content-type", "text/html; charset=utf-8")
+            //     .expect(400)
+            //     .end((err, res) => {
+            //         if (res.error.text === "invalid query") {
+            //             done(err);
+            //         } else {
+            //             throw (err);
+            //         }
+            //     });
         });
     });
 
