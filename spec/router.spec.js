@@ -196,21 +196,6 @@ describe("router", () => {
                 console.log(err);
                 throw new Error (err);
             }
-            // request
-            //     .get("/api/service/byServiceProvider")
-            //     .query(testData.query.invalid_serviceProvider_1)
-            //     .set('Authorization', 'bearer ' + token)
-            //     .set("Accept", "application/json")
-            //     .expect("Content-type", "text/html; charset=utf-8")
-            //     .expect(400)
-            //     .end((err, res) => {
-            //         if (res.error.text === "invalid query") {
-            //             done(err);
-            //         } else {
-            //             console.log(`ERR: ${err}`);
-            //             throw new Error(err);
-            //         }
-            //     });
         });
     });
 
@@ -291,20 +276,6 @@ describe("router", () => {
                 console.log(err);
                 throw new Error (err);
             }
-            // request
-            //     .get("/api/service/byEmailServiceProvider")
-            //     .query(testData.query.invalid_emailServiceProvider)
-            //     .set('Authorization', 'bearer ' + token)
-            //     .set("Accept", "application/json")
-            //     .expect("Content-type", "text/html; charset=utf-8")
-            //     .expect(400)
-            //     .end((err, res) => {
-            //         if (res.error.text === "invalid query") {
-            //             done(err);
-            //         } else {
-            //             throw (err);
-            //         }
-            //     });
         });
     });
 
@@ -438,7 +409,7 @@ describe("router", () => {
                 .send(testData.body.deactivate.valid)
                 .set('Authorization', 'bearer ' + token)
                 .set("Accept", "application/json")
-                // .expect("Content-type", /json/)
+                .expect("Content-type", /json/)
                 .expect(200)
                 .end((err, res) => {
                     if (err) {
